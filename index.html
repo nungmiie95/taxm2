@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="slides-format" content="viewport">
-  <title>ตัวอย่างการคำนวณภาษีเงินได้บุคคลธรรมดาอย่างง่าย</title>
+  <title>tax_m2_ver_Github</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -32,8 +32,8 @@
     :root { --color-bg: #f3f9ff; --color-text: #12324a; --glow-color-rgb: 37,99,235; }
     *, *::before, *::after { box-sizing: border-box; }
     html, body { background: var(--color-bg); margin: 0; }
-    body { font-family: 'Noto Sans Thai', sans-serif; color: var(--color-text); overflow: hidden; height: 100vh; width: 100vw; }
-    .deck { width: 100vw; height: 100vh; position: relative; }
+    body { font-family: 'Noto Sans Thai', sans-serif; color: var(--color-text); overflow: hidden; min-height: 100vh; min-height: 100dvh; width: 100%; }
+    .deck { width: 100%; height: 100vh; min-height: 100dvh; position: relative; }
     .slide { position: absolute; inset: 0; background: var(--color-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transform: scale(0.95); transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; overflow: hidden; }
     .slide.active { opacity: 1; transform: scale(1); pointer-events: all; }
     .slide > .content { position: relative; z-index: 2; width: 100%; max-width: 1220px; padding: clamp(1.5rem, 3vw, 3rem); }
@@ -70,6 +70,46 @@
     @keyframes floaty { 0%,100% { transform: translate(0,0) scale(1);} 50% { transform: translate(22px,-18px) scale(1.08);} }
     @media (max-width: 1100px) {
       .flow, .big-list { grid-template-columns: 1fr 1fr; }
+      .slide > .content { max-width: 100%; padding: 1.5rem; }
+    }
+    @media (max-width: 900px) {
+      .grid[class*="grid-cols-["] { grid-template-columns: 1fr !important; }
+      .slide > .content { padding: 1.25rem; }
+      .formula-box { font-size: clamp(1.35rem, 3vw, 2rem); padding: 1.25rem; }
+      .tax-table th, .tax-table td { font-size: 0.95rem; padding: 10px 12px; }
+      .icon-bubble { width: 72px; height: 72px; font-size: 1.8rem; }
+    }
+    @media (max-width: 768px) {
+      html, body { overflow-x: hidden; }
+      body { overflow-y: auto; }
+      .deck { height: auto; min-height: 100dvh; }
+      .slide { position: relative; inset: auto; min-height: 100dvh; height: auto; opacity: 0; transform: none; pointer-events: none; overflow: visible; padding: 5.25rem 0 6.25rem; }
+      .slide.active { opacity: 1; pointer-events: auto; display: flex; }
+      .slide:not(.active) { display: none; }
+      .slide > .content { max-width: 100%; padding: 1rem; }
+      .grid[class*="grid-cols"], .flow, .big-list { grid-template-columns: 1fr !important; }
+      .card { border-radius: 18px; }
+      .step { gap: 12px; padding: 12px 14px; }
+      .step-num { min-width: 36px; height: 36px; font-size: 0.95rem; }
+      .mini-tag { font-size: 0.85rem; padding: 5px 10px; }
+      .icon-bubble { width: 64px; height: 64px; font-size: 1.6rem; border-radius: 18px; }
+      .flow-card { min-height: auto; padding-bottom: 2.4rem; }
+      .flow-card::after { content: '↓'; right: auto; left: 50%; top: auto; bottom: -18px; transform: translateX(-50%); }
+      .big-list { gap: 14px; }
+      .tax-table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+      .tax-table th, .tax-table td { font-size: 0.9rem; padding: 9px 10px; }
+      .nav-controls { bottom: 10px; width: calc(100% - 20px); max-width: 520px; justify-content: center; gap: 10px; padding: 8px 12px; border-radius: 18px; }
+      .nav-btn { width: 42px; height: 42px; font-size: 1rem; }
+      .slide-dots { gap: 6px; flex-wrap: wrap; justify-content: center; }
+      .dot { width: 9px; height: 9px; }
+      .slide-counter { min-width: 42px; font-size: 0.8rem; }
+    }
+    @media (max-width: 480px) {
+      .slide { padding: 4.8rem 0 6.2rem; }
+      h1.reveal, h2.reveal { line-height: 1.22; }
+      .formula-box { font-size: 1.2rem; padding: 1rem; }
+      .tax-table th, .tax-table td { font-size: 0.82rem; padding: 8px; }
+      .nav-controls { gap: 8px; padding: 8px 10px; }
     }
   </style>
 </head>
@@ -326,6 +366,7 @@ function goToSlide(n) {
   if (prev) prev.classList.remove('active');
   if (next) { next.classList.add('active'); animateSlide(next); }
   current = n; updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function changeSlide(dir) { let next = current + dir; if (next < 1) next = total; if (next > total) next = 1; goToSlide(next); }
 function updateNav() { document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i + 1 === current)); counter.textContent = current + ' / ' + total; }
