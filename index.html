@@ -4,11 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="slides-format" content="viewport">
-  <title>tax_m2_ver_Github</title>
+  <title>ตัวอย่างการคำนวณภาษีเงินได้บุคคลธรรมดาอย่างง่าย</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700;800&display=swap" rel="stylesheet">
+
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
   <style type="text/tailwindcss">
     @theme {
       --color-bg: #f3f9ff;
@@ -28,93 +31,495 @@
       --font-body: 'Noto Sans Thai', sans-serif;
     }
   </style>
+
   <style>
-    :root { --color-bg: #f3f9ff; --color-text: #12324a; --glow-color-rgb: 37,99,235; }
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { background: var(--color-bg); margin: 0; }
-    body { font-family: 'Noto Sans Thai', sans-serif; color: var(--color-text); overflow: hidden; min-height: 100vh; min-height: 100dvh; width: 100%; }
-    .deck { width: 100%; height: 100vh; min-height: 100dvh; position: relative; }
-    .slide { position: absolute; inset: 0; background: var(--color-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transform: scale(0.95); transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; overflow: hidden; }
-    .slide.active { opacity: 1; transform: scale(1); pointer-events: all; }
-    .slide > .content { position: relative; z-index: 2; width: 100%; max-width: 1220px; padding: clamp(1.5rem, 3vw, 3rem); }
-    .nav-controls { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); padding: 8px 20px; border-radius: 999px; border: 1px solid rgba(18,50,74,0.08); box-shadow: 0 10px 30px rgba(37,99,235,0.12); }
-    .nav-btn { width: 38px; height: 38px; border: none; background: #e8f2ff; color: #2563eb; border-radius: 50%; font-size: 1.2rem; cursor: pointer; }
-    .slide-dots { display: flex; gap: 8px; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(37,99,235,0.18); cursor: pointer; }
-    .dot.active { background: #2563eb; transform: scale(1.25); }
-    .slide-counter { font-size: .85rem; color: #5e7d94; min-width: 48px; text-align: center; }
-    .reveal { opacity: 0; transform: translateY(20px); }
-    .gradient-mesh { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-    .blob { position: absolute; border-radius: 50%; filter: blur(70px); animation: floaty 14s ease-in-out infinite; }
-    .blob:nth-child(2) { animation-duration: 18s; }
-    .blob:nth-child(3) { animation-duration: 22s; }
-    .blob:nth-child(4) { animation-duration: 16s; }
-    .slide::before { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity:.02; }
-    .slide::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background: radial-gradient(ellipse at center, transparent 55%, rgba(18,50,74,0.05) 100%); }
-    .card { background: rgba(255,255,255,0.9); border: 1px solid rgba(18,50,74,0.08); border-radius: 24px; box-shadow: 0 14px 36px rgba(37,99,235,0.10); }
-    .icon-bubble { width: 88px; height: 88px; border-radius: 24px; display:flex; align-items:center; justify-content:center; font-size: 2.2rem; box-shadow: 0 10px 24px rgba(56,189,248,0.18); }
-    .formula-box { font-size: clamp(1.8rem, 3.2vw, 3.2rem); font-weight: 800; line-height: 1.5; text-align: center; padding: 2rem; border-radius: 30px; background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(20,184,166,0.08)); border: 2px solid rgba(37,99,235,0.12); }
-    .tax-table { width:100%; border-collapse: collapse; overflow: hidden; border-radius: 22px; }
-    .tax-table th, .tax-table td { padding: 14px 16px; text-align: center; font-size: 1.05rem; }
-    .tax-table th { background: #2563eb; color: white; font-weight: 800; }
-    .tax-table tr:nth-child(even) td { background: #eef7ff; }
-    .tax-table tr:nth-child(odd) td { background: #ffffff; }
-    .step { display:flex; gap:16px; align-items:flex-start; padding: 14px 18px; border-radius: 18px; background: #ffffff; border:1px solid rgba(18,50,74,0.08); }
-    .step-num { min-width: 42px; height:42px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #38bdf8); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; }
-    .mini-tag { display:inline-block; padding: 6px 12px; border-radius: 999px; font-size: .95rem; font-weight: 700; }
-    .flow { display:grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-    .flow-card { position:relative; padding: 22px 18px; border-radius: 24px; background: #ffffff; border:1px solid rgba(18,50,74,0.08); box-shadow: 0 10px 30px rgba(20,184,166,0.10); min-height: 210px; }
-    .flow-card::after { content:'→'; position:absolute; right:-16px; top:50%; transform:translateY(-50%); font-size:2rem; color:#38bdf8; font-weight:800; }
-    .flow-card:last-child::after { display:none; }
-    .big-list { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
-    @keyframes floaty { 0%,100% { transform: translate(0,0) scale(1);} 50% { transform: translate(22px,-18px) scale(1.08);} }
+    :root {
+      --color-bg: #f3f9ff;
+      --color-text: #12324a;
+      --glow-color-rgb: 37,99,235;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      background: var(--color-bg);
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans Thai', sans-serif;
+      color: var(--color-text);
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .deck {
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      background: var(--color-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: all;
+    }
+
+    .slide > .content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 1220px;
+      padding: clamp(1.5rem, 3vw, 3rem);
+    }
+
+    .nav-controls {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      padding: 8px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(18,50,74,0.08);
+      box-shadow: 0 10px 30px rgba(37,99,235,0.12);
+    }
+
+    .nav-btn {
+      width: 38px;
+      height: 38px;
+      border: none;
+      background: #e8f2ff;
+      color: #2563eb;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .slide-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(37,99,235,0.18);
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: #2563eb;
+      transform: scale(1.25);
+    }
+
+    .slide-counter {
+      font-size: .85rem;
+      color: #5e7d94;
+      min-width: 48px;
+      text-align: center;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .gradient-mesh {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      animation: floaty 14s ease-in-out infinite;
+    }
+
+    .blob:nth-child(2) {
+      animation-duration: 18s;
+    }
+
+    .blob:nth-child(3) {
+      animation-duration: 22s;
+    }
+
+    .blob:nth-child(4) {
+      animation-duration: 16s;
+    }
+
+    .slide::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity:.02;
+    }
+
+    .slide::after {
+      content:'';
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(18,50,74,0.05) 100%);
+    }
+
+    .card {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(18,50,74,0.08);
+      border-radius: 24px;
+      box-shadow: 0 14px 36px rgba(37,99,235,0.10);
+    }
+
+    .icon-bubble {
+      width: 88px;
+      height: 88px;
+      border-radius: 24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 2.2rem;
+      box-shadow: 0 10px 24px rgba(56,189,248,0.18);
+    }
+
+    .formula-box {
+      font-size: clamp(1.8rem, 3.2vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.5;
+      text-align: center;
+      padding: 2rem;
+      border-radius: 30px;
+      background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(20,184,166,0.08));
+      border: 2px solid rgba(37,99,235,0.12);
+    }
+
+    .tax-table {
+      width:100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 22px;
+    }
+
+    .tax-table th,
+    .tax-table td {
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 1.05rem;
+    }
+
+    .tax-table th {
+      background: #2563eb;
+      color: white;
+      font-weight: 800;
+    }
+
+    .tax-table tr:nth-child(even) td {
+      background: #eef7ff;
+    }
+
+    .tax-table tr:nth-child(odd) td {
+      background: #ffffff;
+    }
+
+    .step {
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      padding: 14px 18px;
+      border-radius: 18px;
+      background: #ffffff;
+      border:1px solid rgba(18,50,74,0.08);
+    }
+
+    .step-num {
+      min-width: 42px;
+      height:42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+    }
+
+    .mini-tag {
+      display:inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .flow {
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .flow-card {
+      position:relative;
+      padding: 22px 18px;
+      border-radius: 24px;
+      background: #ffffff;
+      border:1px solid rgba(18,50,74,0.08);
+      box-shadow: 0 10px 30px rgba(20,184,166,0.10);
+      min-height: 210px;
+    }
+
+    .flow-card::after {
+      content:'→';
+      position:absolute;
+      right:-16px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:2rem;
+      color:#38bdf8;
+      font-weight:800;
+    }
+
+    .flow-card:last-child::after {
+      display:none;
+    }
+
+    .big-list {
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+    }
+
+    @keyframes floaty {
+      0%,100% { transform: translate(0,0) scale(1);}
+      50% { transform: translate(22px,-18px) scale(1.08);}
+    }
+
     @media (max-width: 1100px) {
-      .flow, .big-list { grid-template-columns: 1fr 1fr; }
-      .slide > .content { max-width: 100%; padding: 1.5rem; }
+      .flow,
+      .big-list {
+        grid-template-columns: 1fr 1fr;
+      }
+      .slide > .content {
+        max-width: 100%;
+        padding: 1.5rem;
+      }
     }
+
+    @media (max-width: 1024px) {
+      .tax-table th,
+      .tax-table td {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+      }
+    }
+
     @media (max-width: 900px) {
-      .grid[class*="grid-cols-["] { grid-template-columns: 1fr !important; }
-      .slide > .content { padding: 1.25rem; }
-      .formula-box { font-size: clamp(1.35rem, 3vw, 2rem); padding: 1.25rem; }
-      .tax-table th, .tax-table td { font-size: 0.95rem; padding: 10px 12px; }
-      .icon-bubble { width: 72px; height: 72px; font-size: 1.8rem; }
+      .grid[class*="grid-cols-["] {
+        grid-template-columns: 1fr !important;
+      }
+
+      .slide > .content {
+        padding: 1.25rem;
+      }
+
+      .formula-box {
+        font-size: clamp(1.35rem, 3vw, 2rem);
+        padding: 1.25rem;
+      }
+
+      .icon-bubble {
+        width: 72px;
+        height: 72px;
+        font-size: 1.8rem;
+      }
     }
+
     @media (max-width: 768px) {
-      html, body { overflow-x: hidden; }
-      body { overflow-y: auto; }
-      .deck { height: auto; min-height: 100dvh; }
-      .slide { position: relative; inset: auto; min-height: 100dvh; height: auto; opacity: 0; transform: none; pointer-events: none; overflow: visible; padding: 5.25rem 0 6.25rem; }
-      .slide.active { opacity: 1; pointer-events: auto; display: flex; }
-      .slide:not(.active) { display: none; }
-      .slide > .content { max-width: 100%; padding: 1rem; }
-      .grid[class*="grid-cols"], .flow, .big-list { grid-template-columns: 1fr !important; }
-      .card { border-radius: 18px; }
-      .step { gap: 12px; padding: 12px 14px; }
-      .step-num { min-width: 36px; height: 36px; font-size: 0.95rem; }
-      .mini-tag { font-size: 0.85rem; padding: 5px 10px; }
-      .icon-bubble { width: 64px; height: 64px; font-size: 1.6rem; border-radius: 18px; }
-      .flow-card { min-height: auto; padding-bottom: 2.4rem; }
-      .flow-card::after { content: '↓'; right: auto; left: 50%; top: auto; bottom: -18px; transform: translateX(-50%); }
-      .big-list { gap: 14px; }
-      .tax-table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-      .tax-table th, .tax-table td { font-size: 0.9rem; padding: 9px 10px; }
-      .nav-controls { bottom: 10px; width: calc(100% - 20px); max-width: 520px; justify-content: center; gap: 10px; padding: 8px 12px; border-radius: 18px; }
-      .nav-btn { width: 42px; height: 42px; font-size: 1rem; }
-      .slide-dots { gap: 6px; flex-wrap: wrap; justify-content: center; }
-      .dot { width: 9px; height: 9px; }
-      .slide-counter { min-width: 42px; font-size: 0.8rem; }
+      html,
+      body {
+        overflow-x: hidden;
+      }
+
+      body {
+        overflow-y: auto;
+      }
+
+      .deck {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .slide {
+        position: relative;
+        inset: auto;
+        min-height: 100vh;
+        height: auto;
+        opacity: 0;
+        transform: none;
+        pointer-events: none;
+        overflow: visible;
+        padding: 4.5rem 0 5.5rem;
+      }
+
+      .slide.active {
+        opacity: 1;
+        pointer-events: auto;
+        display: flex;
+      }
+
+      .slide:not(.active) {
+        display: none;
+      }
+
+      .slide > .content {
+        max-width: 100%;
+        padding: 1rem;
+      }
+
+      .grid,
+      .flow,
+      .big-list,
+      .grid[class*="grid-cols"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      .card {
+        border-radius: 18px;
+      }
+
+      .formula-box {
+        font-size: 1.2rem;
+        padding: 1rem;
+        line-height: 1.6;
+      }
+
+      .step {
+        gap: 10px;
+        padding: 10px 12px;
+      }
+
+      .step-num {
+        min-width: 34px;
+        height: 34px;
+        font-size: 0.9rem;
+      }
+
+      .icon-bubble {
+        width: 64px;
+        height: 64px;
+        font-size: 1.6rem;
+        border-radius: 18px;
+      }
+
+      .flow-card {
+        min-height: auto;
+        padding-bottom: 2.2rem;
+      }
+
+      .flow-card::after {
+        content: '↓';
+        right: 50%;
+        left: auto;
+        top: auto;
+        bottom: -18px;
+        transform: translateX(50%);
+      }
+
+      .tax-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .tax-table th,
+      .tax-table td {
+        font-size: 0.88rem;
+        padding: 8px 10px;
+      }
+
+      .nav-controls {
+        bottom: 8px;
+        width: calc(100% - 20px);
+        max-width: 520px;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 16px;
+      }
+
+      .nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+
+      .slide-dots {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .dot {
+        width: 9px;
+        height: 9px;
+      }
+
+      .slide-counter {
+        min-width: 40px;
+        font-size: 0.78rem;
+      }
     }
+
     @media (max-width: 480px) {
-      .slide { padding: 4.8rem 0 6.2rem; }
-      h1.reveal, h2.reveal { line-height: 1.22; }
-      .formula-box { font-size: 1.2rem; padding: 1rem; }
-      .tax-table th, .tax-table td { font-size: 0.82rem; padding: 8px; }
-      .nav-controls { gap: 8px; padding: 8px 10px; }
+      .slide {
+        padding: 4.3rem 0 5.8rem;
+      }
+
+      .mini-tag {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+      }
+
+      .tax-table th,
+      .tax-table td {
+        font-size: 0.8rem;
+      }
     }
   </style>
 </head>
+
 <body>
 <div class="deck">
+  <!-- สไลด์ที่ 1: ปก -->
   <section class="slide active" data-slide="1">
     <div class="gradient-mesh">
       <div class="blob" style="width:360px;height:360px;top:-60px;left:-50px;background:#38bdf8;opacity:.18"></div>
@@ -125,9 +530,15 @@
     <div class="content">
       <div class="grid grid-cols-[1.1fr_0.9fr] gap-8 items-center">
         <div>
-          <div class="reveal inline-block px-4 py-2 rounded-full bg-white/85 text-accent-1 text-lg font-bold mb-5 border border-glass-border">วิชาสังคมศึกษา ศาสนาและวัฒนธรรม • มัธยมศึกษาปีที่ 2</div>
-          <h1 class="reveal text-[clamp(2.4rem,4.8vw,4.5rem)] leading-tight font-extrabold text-[#12324a] mb-4">ตัวอย่างการคำนวณภาษีเงินได้<br>บุคคลธรรมดาอย่างง่าย</h1>
-          <p class="reveal text-[clamp(1.1rem,2vw,1.55rem)] text-text-secondary font-medium">ก่อนทำใบงานฝึกคำนวณภาษี</p>
+          <div class="reveal inline-block px-4 py-2 rounded-full bg-white/85 text-accent-1 text-lg font-bold mb-5 border border-glass-border">
+            วิชาสังคมศึกษา ศาสนาและวัฒนธรรม • มัธยมศึกษาปีที่ 2
+          </div>
+          <h1 class="reveal text-[clamp(2.4rem,4.8vw,4.5rem)] leading-tight font-extrabold text-[#12324a] mb-4">
+            ตัวอย่างการคำนวณภาษีเงินได้<br>บุคคลธรรมดาอย่างง่าย
+          </h1>
+          <p class="reveal text-[clamp(1.1rem,2vw,1.55rem)] text-text-secondary font-medium">
+            ก่อนทำใบงานฝึกคำนวณภาษี
+          </p>
           <div class="reveal mt-8 flex gap-4 flex-wrap">
             <span class="mini-tag" style="background:#dbeafe;color:#1d4ed8;">หาเงินได้สุทธิ</span>
             <span class="mini-tag" style="background:#d1fae5;color:#0f766e;">เทียบอัตราภาษี</span>
@@ -141,14 +552,27 @@
             <div class="icon-bubble" style="background:#ffedd5;">🪙</div>
           </div>
           <div class="mt-6 grid gap-4">
-            <div class="step"><div class="step-num">1</div><div><div class="font-bold text-lg">ดูข้อมูลรายได้และรายการหัก</div><div class="text-text-secondary">อ่านโจทย์ให้ครบก่อนเริ่มคำนวณ</div></div></div>
-            <div class="step"><div class="step-num">2</div><div><div class="font-bold text-lg">คำนวณทีละขั้น</div><div class="text-text-secondary">แสดงวิธีทำอย่างชัดเจนทุกขั้น</div></div></div>
+            <div class="step">
+              <div class="step-num">1</div>
+              <div>
+                <div class="font-bold text-lg">ดูข้อมูลรายได้และรายการหัก</div>
+                <div class="text-text-secondary">อ่านโจทย์ให้ครบก่อนเริ่มคำนวณ</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div>
+                <div class="font-bold text-lg">คำนวณทีละขั้น</div>
+                <div class="text-text-secondary">แสดงวิธีทำอย่างชัดเจนทุกขั้น</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- สไลด์ที่ 2: สูตรที่ต้องจำ -->
   <section class="slide" data-slide="2">
     <div class="gradient-mesh">
       <div class="blob" style="width:300px;height:300px;top:-80px;right:-50px;background:#38bdf8;opacity:.10"></div>
@@ -156,19 +580,36 @@
     </div>
     <div class="content">
       <h2 class="reveal text-[clamp(2rem,4vw,3.2rem)] font-extrabold mb-6">สูตรที่ต้องจำ</h2>
-      <div class="reveal formula-box">เงินได้สุทธิ = เงินได้พึงประเมิน - ค่าใช้จ่าย - ค่าลดหย่อน</div>
+      <div class="reveal formula-box">
+        เงินได้สุทธิ = เงินได้พึงประเมิน - ค่าใช้จ่าย - ค่าลดหย่อน
+      </div>
       <div class="grid grid-cols-3 gap-5 mt-8">
-        <div class="reveal card p-6 text-center"><div class="text-4xl mb-2">💼</div><div class="font-bold text-xl mb-2">เงินได้พึงประเมิน</div><div class="text-text-secondary">รายได้ที่ได้รับก่อนหักรายการต่าง ๆ</div></div>
-        <div class="reveal card p-6 text-center"><div class="text-4xl mb-2">🧾</div><div class="font-bold text-xl mb-2">ค่าใช้จ่าย</div><div class="text-text-secondary">จำนวนเงินที่นำมาหักตามเงื่อนไขโจทย์</div></div>
-        <div class="reveal card p-6 text-center"><div class="text-4xl mb-2">🏷️</div><div class="font-bold text-xl mb-2">ค่าลดหย่อน</div><div class="text-text-secondary">จำนวนเงินที่ช่วยลดฐานภาษีลง</div></div>
+        <div class="reveal card p-6 text-center">
+          <div class="text-4xl mb-2">💼</div>
+          <div class="font-bold text-xl mb-2">เงินได้พึงประเมิน</div>
+          <div class="text-text-secondary">รายได้ที่ได้รับก่อนหักรายการต่าง ๆ</div>
+        </div>
+        <div class="reveal card p-6 text-center">
+          <div class="text-4xl mb-2">🧾</div>
+          <div class="font-bold text-xl mb-2">ค่าใช้จ่าย</div>
+          <div class="text-text-secondary">จำนวนเงินที่นำมาหักตามเงื่อนไขโจทย์</div>
+        </div>
+        <div class="reveal card p-6 text-center">
+          <div class="text-4xl mb-2">🏷️</div>
+          <div class="font-bold text-xl mb-2">ค่าลดหย่อน</div>
+          <div class="text-text-secondary">จำนวนเงินที่ช่วยลดฐานภาษีลง</div>
+        </div>
       </div>
       <div class="reveal mt-7 card p-5 border-l-[8px]" style="border-left-color:#fb923c;">
         <div class="text-xl font-bold text-[#9a3412] mb-1">จำให้ได้</div>
-        <div class="text-[1.2rem] text-text-secondary">เมื่อนักเรียนหาเงินได้สุทธิได้แล้ว ให้นำไปเทียบกับตารางอัตราภาษี</div>
+        <div class="text-[1.2rem] text-text-secondary">
+          เมื่อนักเรียนหาเงินได้สุทธิได้แล้ว ให้นำไปเทียบกับตารางอัตราภาษี
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- สไลด์ที่ 3: ตารางอัตราภาษี -->
   <section class="slide" data-slide="3">
     <div class="gradient-mesh">
       <div class="blob" style="width:280px;height:280px;top:-60px;left:-30px;background:#2563eb;opacity:.10"></div>
@@ -181,13 +622,28 @@
           <div class="reveal card p-6">
             <div class="text-5xl mb-3">📊</div>
             <div class="text-2xl font-bold text-accent-1 mb-3">อัตราภาษีแบบขั้นบันได</div>
-            <div class="text-lg text-text-secondary leading-relaxed">คิดภาษีเฉพาะส่วนที่เกินในแต่ละช่วง ไม่ใช่นำทั้งจำนวนไปคูณอัตราเดียว</div>
+            <div class="text-lg text-text-secondary leading-relaxed">
+              คิดภาษีเฉพาะส่วนที่เกินในแต่ละช่วง ไม่ใช่นำทั้งจำนวนไปคูณอัตราเดียว
+            </div>
           </div>
-          <div class="reveal mt-5 step"><div class="step-num">!</div><div><div class="font-bold text-lg">จุดสำคัญ</div><div class="text-text-secondary">ต้องดูว่าเงินได้สุทธิอยู่ช่วงใด และคิดทีละช่วงตามตาราง</div></div></div>
+          <div class="reveal mt-5 step">
+            <div class="step-num">!</div>
+            <div>
+              <div class="font-bold text-lg">จุดสำคัญ</div>
+              <div class="text-text-secondary">
+                ต้องดูว่าเงินได้สุทธิอยู่ช่วงใด และคิดทีละช่วงตามตาราง
+              </div>
+            </div>
+          </div>
         </div>
         <div class="reveal card p-5">
           <table class="tax-table">
-            <thead><tr><th>เงินได้สุทธิ</th><th>อัตราภาษี</th></tr></thead>
+            <thead>
+              <tr>
+                <th>เงินได้สุทธิ</th>
+                <th>อัตราภาษี</th>
+              </tr>
+            </thead>
             <tbody>
               <tr><td>0 – 150,000 บาท</td><td>ยกเว้น</td></tr>
               <tr><td>150,001 – 300,000 บาท</td><td>5%</td></tr>
@@ -204,6 +660,7 @@
     </div>
   </section>
 
+  <!-- สไลด์ที่ 4: ตัวอย่างที่ 1 -->
   <section class="slide" data-slide="4">
     <div class="gradient-mesh">
       <div class="blob" style="width:260px;height:260px;top:-70px;right:0;background:#14b8a6;opacity:.09"></div>
@@ -215,28 +672,46 @@
         <div class="reveal card p-6">
           <div class="text-2xl font-bold mb-4 text-accent-1">โจทย์</div>
           <div class="grid gap-4 text-[1.2rem]">
-            <div class="step"><div class="step-num">1</div><div>นาย ก. มีเงินได้พึงประเมิน <b>200,000 บาท</b></div></div>
-            <div class="step"><div class="step-num">2</div><div>ค่าใช้จ่าย <b>80,000 บาท</b></div></div>
-            <div class="step"><div class="step-num">3</div><div>ค่าลดหย่อน <b>60,000 บาท</b></div></div>
+            <div class="step">
+              <div class="step-num">1</div>
+              <div>นาย ก. มีเงินได้พึงประเมิน <b>200,000 บาท</b></div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div>ค่าใช้จ่าย <b>80,000 บาท</b></div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div>ค่าลดหย่อน <b>60,000 บาท</b></div>
+            </div>
           </div>
         </div>
         <div class="grid gap-4">
           <div class="reveal card p-6">
             <div class="text-xl font-bold text-[#0f766e] mb-3">วิธีทำ</div>
-            <div class="text-[1.45rem] leading-relaxed font-semibold">เงินได้สุทธิ = 200,000 - 80,000 - 60,000</div>
-            <div class="text-[1.65rem] mt-3 font-extrabold text-accent-1">เงินได้สุทธิ = 60,000 บาท</div>
+            <div class="text-[1.45rem] leading-relaxed font-semibold">
+              เงินได้สุทธิ = 200,000 - 80,000 - 60,000
+            </div>
+            <div class="text-[1.65rem] mt-3 font-extrabold text-accent-1">
+              เงินได้สุทธิ = 60,000 บาท
+            </div>
           </div>
           <div class="reveal card p-6">
             <div class="text-xl font-bold text-[#c2410c] mb-3">เทียบตาราง</div>
-            <div class="text-[1.15rem] leading-relaxed">เงินได้สุทธิ 60,000 บาท อยู่ในช่วง 0 – 150,000 บาท</div>
+            <div class="text-[1.15rem] leading-relaxed">
+              เงินได้สุทธิ 60,000 บาท อยู่ในช่วง 0 – 150,000 บาท
+            </div>
             <div class="text-[1.15rem] mt-2">อัตราภาษีที่ใช้ = ยกเว้น</div>
-            <div class="mt-3 text-[1.55rem] font-extrabold text-[#c2410c]">ภาษีที่ต้องชำระ = 0 บาท</div>
+            <div class="mt-3 text-[1.55rem] font-extrabold text-[#c2410c]">
+              ภาษีที่ต้องชำระ = 0 บาท
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- สไลด์ที่ 5: ตัวอย่างที่ 2 -->
   <section class="slide" data-slide="5">
     <div class="gradient-mesh">
       <div class="blob" style="width:260px;height:260px;top:-80px;left:-20px;background:#2563eb;opacity:.10"></div>
@@ -248,30 +723,54 @@
         <div class="reveal card p-6">
           <div class="text-2xl font-bold mb-4 text-accent-1">โจทย์</div>
           <div class="grid gap-4 text-[1.15rem]">
-            <div class="step"><div class="step-num">1</div><div>นาย ค. มีเงินได้พึงประเมิน <b>360,000 บาท</b></div></div>
-            <div class="step"><div class="step-num">2</div><div>ค่าใช้จ่าย <b>100,000 บาท</b></div></div>
-            <div class="step"><div class="step-num">3</div><div>ค่าลดหย่อน <b>80,000 บาท</b></div></div>
+            <div class="step">
+              <div class="step-num">1</div>
+              <div>นาย ค. มีเงินได้พึงประเมิน <b>360,000 บาท</b></div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div>ค่าใช้จ่าย <b>100,000 บาท</b></div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div>ค่าลดหย่อน <b>80,000 บาท</b></div>
+            </div>
           </div>
         </div>
         <div class="grid gap-4">
           <div class="reveal card p-6">
             <div class="text-xl font-bold text-[#0f766e] mb-3">วิธีทำ</div>
-            <div class="text-[1.35rem] leading-relaxed font-semibold">เงินได้สุทธิ = 360,000 - 100,000 - 80,000</div>
-            <div class="text-[1.6rem] mt-3 font-extrabold text-accent-1">เงินได้สุทธิ = 180,000 บาท</div>
+            <div class="text-[1.35rem] leading-relaxed font-semibold">
+              เงินได้สุทธิ = 360,000 - 100,000 - 80,000
+            </div>
+            <div class="text-[1.6rem] mt-3 font-extrabold text-accent-1">
+              เงินได้สุทธิ = 180,000 บาท
+            </div>
           </div>
           <div class="reveal card p-6">
             <div class="text-xl font-bold text-[#c2410c] mb-3">เทียบตารางแบบขั้นบันได</div>
-            <div class="text-[1.1rem] leading-relaxed">0 – 150,000 บาท = ยกเว้น</div>
-            <div class="text-[1.1rem] leading-relaxed">ส่วนที่เกิน 150,000 บาท คือ 30,000 บาท</div>
-            <div class="text-[1.25rem] font-bold mt-2">30,000 × 5% = 1,500 บาท</div>
-            <div class="mt-4 pt-3 border-t border-slate-200 text-[1.12rem]">อัตราภาษีที่ใช้ = 5%</div>
-            <div class="text-[1.55rem] font-extrabold text-[#c2410c] mt-2">ภาษีที่ต้องชำระ = 1,500 บาท</div>
+            <div class="text-[1.1rem] leading-relaxed">
+              0 – 150,000 บาท = ยกเว้น
+            </div>
+            <div class="text-[1.1rem] leading-relaxed">
+              ส่วนที่เกิน 150,000 บาท คือ 30,000 บาท
+            </div>
+            <div class="text-[1.25rem] font-bold mt-2">
+              30,000 × 5% = 1,500 บาท
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-200 text-[1.12rem]">
+              อัตราภาษีที่ใช้ = 5%
+            </div>
+            <div class="text-[1.55rem] font-extrabold text-[#c2410c] mt-2">
+              ภาษีที่ต้องชำระ = 1,500 บาท
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- สไลด์ที่ 6: ตัวอย่างที่ 3 -->
   <section class="slide" data-slide="6">
     <div class="gradient-mesh">
       <div class="blob" style="width:260px;height:260px;top:-70px;right:-20px;background:#14b8a6;opacity:.10"></div>
@@ -283,32 +782,60 @@
         <div class="reveal card p-6">
           <div class="text-2xl font-bold mb-4 text-accent-1">โจทย์</div>
           <div class="grid gap-4 text-[1.1rem]">
-            <div class="step"><div class="step-num">1</div><div>นาย จ. มีเงินได้พึงประเมิน <b>520,000 บาท</b></div></div>
-            <div class="step"><div class="step-num">2</div><div>ค่าใช้จ่าย <b>100,000 บาท</b></div></div>
-            <div class="step"><div class="step-num">3</div><div>ค่าลดหย่อน <b>90,000 บาท</b></div></div>
+            <div class="step">
+              <div class="step-num">1</div>
+              <div>นาย จ. มีเงินได้พึงประเมิน <b>520,000 บาท</b></div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div>ค่าใช้จ่าย <b>100,000 บาท</b></div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div>ค่าลดหย่อน <b>90,000 บาท</b></div>
+            </div>
           </div>
         </div>
         <div class="grid gap-4">
           <div class="reveal card p-6">
             <div class="text-xl font-bold text-[#0f766e] mb-3">วิธีทำ</div>
-            <div class="text-[1.3rem] leading-relaxed font-semibold">เงินได้สุทธิ = 520,000 - 100,000 - 90,000</div>
-            <div class="text-[1.55rem] mt-3 font-extrabold text-accent-1">เงินได้สุทธิ = 330,000 บาท</div>
+            <div class="text-[1.3rem] leading-relaxed font-semibold">
+              เงินได้สุทธิ = 520,000 - 100,000 - 90,000
+            </div>
+            <div class="text-[1.55rem] mt-3 font-extrabold text-accent-1">
+              เงินได้สุทธิ = 330,000 บาท
+            </div>
           </div>
           <div class="reveal card p-6">
             <div class="text-xl font-bold text-[#c2410c] mb-3">เทียบตารางแบบขั้นบันได</div>
-            <div class="text-[1.02rem] leading-relaxed">0 – 150,000 บาท = ยกเว้น</div>
-            <div class="text-[1.02rem] leading-relaxed">150,001 – 300,000 บาท = 150,000 × 5% = 7,500 บาท</div>
-            <div class="text-[1.02rem] leading-relaxed">ส่วนที่เกิน 300,000 บาท คือ 30,000 บาท</div>
-            <div class="text-[1.15rem] font-bold mt-1">30,000 × 10% = 3,000 บาท</div>
-            <div class="mt-3 pt-3 border-t border-slate-200 text-[1.15rem]">รวมภาษี: <span class="font-bold">7,500 + 3,000 = 10,500 บาท</span></div>
-            <div class="text-[1.08rem] mt-2">อัตราภาษีที่ใช้ = 5%, 10%</div>
-            <div class="text-[1.5rem] font-extrabold text-[#c2410c] mt-2">ภาษีที่ต้องชำระ = 10,500 บาท</div>
+            <div class="text-[1.02rem] leading-relaxed">
+              0 – 150,000 บาท = ยกเว้น
+            </div>
+            <div class="text-[1.02rem] leading-relaxed">
+              150,001 – 300,000 บาท = 150,000 × 5% = 7,500 บาท
+            </div>
+            <div class="text-[1.02rem] leading-relaxed">
+              ส่วนที่เกิน 300,000 บาท คือ 30,000 บาท
+            </div>
+            <div class="text-[1.15rem] font-bold mt-1">
+              30,000 × 10% = 3,000 บาท
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-200 text-[1.15rem]">
+              รวมภาษี: <span class="font-bold">7,500 + 3,000 = 10,500 บาท</span>
+            </div>
+            <div class="text-[1.08rem] mt-2">
+              อัตราภาษีที่ใช้ = 5%, 10%
+            </div>
+            <div class="text-[1.5rem] font-extrabold text-[#c2410c] mt-2">
+              ภาษีที่ต้องชำระ = 10,500 บาท
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- สไลด์ที่ 7: ขั้นตอนจำง่าย -->
   <section class="slide" data-slide="7">
     <div class="gradient-mesh">
       <div class="blob" style="width:280px;height:280px;top:-80px;left:-30px;background:#38bdf8;opacity:.10"></div>
@@ -317,14 +844,39 @@
     <div class="content">
       <h2 class="reveal text-[clamp(2rem,4vw,3rem)] font-extrabold mb-6 text-center">ขั้นตอนจำง่าย</h2>
       <div class="flow">
-        <div class="reveal flow-card"><div class="text-5xl mb-3">📖</div><div class="text-2xl font-extrabold mb-2 text-accent-1">1. อ่านโจทย์</div><div class="text-lg text-text-secondary">ดูให้ครบว่าโจทย์กำหนดเงินได้พึงประเมิน ค่าใช้จ่าย และค่าลดหย่อนเท่าใด</div></div>
-        <div class="reveal flow-card"><div class="text-5xl mb-3">🧮</div><div class="text-2xl font-extrabold mb-2 text-accent-1">2. หาเงินได้สุทธิ</div><div class="text-lg text-text-secondary">ใช้สูตร เงินได้สุทธิ = เงินได้พึงประเมิน - ค่าใช้จ่าย - ค่าลดหย่อน</div></div>
-        <div class="reveal flow-card"><div class="text-5xl mb-3">📊</div><div class="text-2xl font-extrabold mb-2 text-accent-1">3. เทียบตารางภาษี</div><div class="text-lg text-text-secondary">ตรวจว่าจำนวนเงินได้สุทธิอยู่ในช่วงใด และคิดภาษีตามขั้นบันได</div></div>
-        <div class="reveal flow-card"><div class="text-5xl mb-3">💰</div><div class="text-2xl font-extrabold mb-2 text-accent-1">4. คำนวณภาษี</div><div class="text-lg text-text-secondary">คำนวณเฉพาะส่วนที่ต้องเสียภาษี แล้วรวมเป็นภาษีที่ต้องชำระ</div></div>
+        <div class="reveal flow-card">
+          <div class="text-5xl mb-3">📖</div>
+          <div class="text-2xl font-extrabold mb-2 text-accent-1">1. อ่านโจทย์</div>
+          <div class="text-lg text-text-secondary">
+            ดูให้ครบว่าโจทย์กำหนดเงินได้พึงประเมิน ค่าใช้จ่าย และค่าลดหย่อนเท่าใด
+          </div>
+        </div>
+        <div class="reveal flow-card">
+          <div class="text-5xl mb-3">🧮</div>
+          <div class="text-2xl font-extrabold mb-2 text-accent-1">2. หาเงินได้สุทธิ</div>
+          <div class="text-lg text-text-secondary">
+            ใช้สูตร เงินได้สุทธิ = เงินได้พึงประเมิน - ค่าใช้จ่าย - ค่าลดหย่อน
+          </div>
+        </div>
+        <div class="reveal flow-card">
+          <div class="text-5xl mb-3">📊</div>
+          <div class="text-2xl font-extrabold mb-2 text-accent-1">3. เทียบตารางภาษี</div>
+          <div class="text-lg text-text-secondary">
+            ตรวจว่าจำนวนเงินได้สุทธิอยู่ในช่วงใด และคิดภาษีตามขั้นบันได
+          </div>
+        </div>
+        <div class="reveal flow-card">
+          <div class="text-5xl mb-3">💰</div>
+          <div class="text-2xl font-extrabold mb-2 text-accent-1">4. คำนวณภาษี</div>
+          <div class="text-lg text-text-secondary">
+            คำนวณเฉพาะส่วนที่ต้องเสียภาษี แล้วรวมเป็นภาษีที่ต้องชำระ
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- สไลด์ที่ 8: พร้อมทำใบงาน -->
   <section class="slide" data-slide="8">
     <div class="gradient-mesh">
       <div class="blob" style="width:340px;height:340px;top:-90px;right:-50px;background:#2563eb;opacity:.16"></div>
@@ -332,16 +884,34 @@
       <div class="blob" style="width:200px;height:200px;top:28%;left:18%;background:#fb923c;opacity:.12"></div>
     </div>
     <div class="content text-center">
-      <div class="reveal inline-block px-5 py-2 rounded-full bg-white/90 text-accent-1 text-lg font-bold mb-5 border border-glass-border">พร้อมทำใบงาน</div>
-      <h2 class="reveal text-[clamp(2.3rem,5vw,4rem)] font-extrabold mb-5">ต่อไปให้นักเรียนทำใบงาน<br>โดยเขียนให้ครบ 3 ช่อง</h2>
+      <div class="reveal inline-block px-5 py-2 rounded-full bg-white/90 text-accent-1 text-lg font-bold mb-5 border border-glass-border">
+        พร้อมทำใบงาน
+      </div>
+      <h2 class="reveal text-[clamp(2.3rem,5vw,4rem)] font-extrabold mb-5">
+        ต่อไปให้นักเรียนทำใบงาน<br>โดยเขียนให้ครบ 3 ช่อง
+      </h2>
       <div class="big-list mt-8">
-        <div class="reveal card p-6"><div class="text-5xl mb-3">1️⃣</div><div class="text-2xl font-bold mb-2">เงินได้สุทธิ</div><div class="text-lg text-text-secondary">คำนวณจากสูตรให้ถูกต้อง</div></div>
-        <div class="reveal card p-6"><div class="text-5xl mb-3">2️⃣</div><div class="text-2xl font-bold mb-2">อัตราภาษีที่ใช้</div><div class="text-lg text-text-secondary">ดูจากตารางภาษีแบบขั้นบันได</div></div>
-        <div class="reveal card p-6"><div class="text-5xl mb-3">3️⃣</div><div class="text-2xl font-bold mb-2">ภาษีที่ต้องชำระ</div><div class="text-lg text-text-secondary">คำนวณและสรุปคำตอบให้ครบ</div></div>
+        <div class="reveal card p-6">
+          <div class="text-5xl mb-3">1️⃣</div>
+          <div class="text-2xl font-bold mb-2">เงินได้สุทธิ</div>
+          <div class="text-lg text-text-secondary">คำนวณจากสูตรให้ถูกต้อง</div>
+        </div>
+        <div class="reveal card p-6">
+          <div class="text-5xl mb-3">2️⃣</div>
+          <div class="text-2xl font-bold mb-2">อัตราภาษีที่ใช้</div>
+          <div class="text-lg text-text-secondary">ดูจากตารางภาษีแบบขั้นบันได</div>
+        </div>
+        <div class="reveal card p-6">
+          <div class="text-5xl mb-3">3️⃣</div>
+          <div class="text-2xl font-bold mb-2">ภาษีที่ต้องชำระ</div>
+          <div class="text-lg text-text-secondary">คำนวณและสรุปคำตอบให้ครบ</div>
+        </div>
       </div>
       <div class="reveal mt-8 mx-auto max-w-[900px] card p-6 border-l-[10px] text-left" style="border-left-color:#fb923c;">
         <div class="text-2xl font-extrabold text-[#9a3412] mb-2">ข้อความเตือน</div>
-        <div class="text-[1.45rem] font-semibold text-text-secondary">อย่าลืมแสดงวิธีทำอย่างย่อทุกข้อ</div>
+        <div class="text-[1.45rem] font-semibold text-text-secondary">
+          อย่าลืมแสดงวิธีทำอย่างย่อทุกข้อ
+        </div>
       </div>
     </div>
   </section>
@@ -359,29 +929,78 @@ let current = 1;
 const total = document.querySelectorAll('.slide').length;
 const dotsContainer = document.getElementById('dots');
 const counter = document.getElementById('counter');
-for (let i = 1; i <= total; i++) { const dot = document.createElement('div'); dot.className = 'dot' + (i === 1 ? ' active' : ''); dot.onclick = () => goToSlide(i); dotsContainer.appendChild(dot); }
+
+for (let i = 1; i <= total; i++) {
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i === 1 ? ' active' : '');
+  dot.onclick = () => goToSlide(i);
+  dotsContainer.appendChild(dot);
+}
+
 function goToSlide(n) {
   const prev = document.querySelector('.slide.active');
   const next = document.querySelector(`.slide[data-slide="${n}"]`);
   if (prev) prev.classList.remove('active');
-  if (next) { next.classList.add('active'); animateSlide(next); }
-  current = n; updateNav();
+  if (next) {
+    next.classList.add('active');
+    animateSlide(next);
+  }
+  current = n;
+  updateNav();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-function changeSlide(dir) { let next = current + dir; if (next < 1) next = total; if (next > total) next = 1; goToSlide(next); }
-function updateNav() { document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i + 1 === current)); counter.textContent = current + ' / ' + total; }
-document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); } if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); } });
+
+function changeSlide(dir) {
+  let next = current + dir;
+  if (next < 1) next = total;
+  if (next > total) next = 1;
+  goToSlide(next);
+}
+
+function updateNav() {
+  document.querySelectorAll('.dot').forEach((d, i) =>
+    d.classList.toggle('active', i + 1 === current)
+  );
+  counter.textContent = current + ' / ' + total;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') {
+    e.preventDefault();
+    changeSlide(1);
+  }
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    changeSlide(-1);
+  }
+});
+
 let touchStartX = 0;
-document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
-document.addEventListener('touchend', (e) => { const diff = touchStartX - e.changedTouches[0].clientX; if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1); });
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+});
+
+document.addEventListener('touchend', (e) => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) {
+    changeSlide(diff > 0 ? 1 : -1);
+  }
+});
+
 function animateSlide(slide) {
   slide.querySelectorAll('.reveal').forEach((el, i) => {
-    el.style.transition = 'none'; el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; el.offsetHeight;
+    el.style.transition = 'none';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.offsetHeight;
     const delay = i * 0.08;
-    el.style.transition = `opacity 0.38s ease ${delay}s, transform 0.38s ease ${delay}s`;
-    el.style.opacity = '1'; el.style.transform = 'translateY(0px)';
+    el.style.transition =
+      `opacity 0.38s ease ${delay}s, transform 0.38s ease ${delay}s`;
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0px)';
   });
 }
+
 animateSlide(document.querySelector('.slide.active'));
 </script>
 </body>
